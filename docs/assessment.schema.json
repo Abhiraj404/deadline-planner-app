@@ -1,0 +1,85 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:deadline-planner:assessment:1",
+  "title": "Deadline Planner assessment extraction result",
+  "description": "Schema version 1. See docs/assessment-data-model.md.",
+  "type": "object",
+  "$defs": {
+    "confidence": { "enum": ["high", "medium", "low"] },
+    "field": {
+      "type": "object",
+      "required": ["value", "source_text", "confidence"],
+      "properties": {
+        "value": { "type": ["string", "number", "null"] },
+        "source_text": { "type": "string", "maxLength": 200 },
+        "confidence": { "$ref": "#/$defs/confidence" },
+        "alternatives": { "type": "array", "items": { "type": "string" } },
+        "minimum": { "type": ["integer", "null"] },
+        "maximum": { "type": "integer" }
+      }
+    },
+    "dateField": {
+      "allOf": [{ "$ref": "#/$defs/field" }],
+      "type": "object",
+      "required": ["time", "matched_text", "label", "notes"],
+      "properties": {
+        "value": { "type": ["string", "null"], "pattern": "^\\d{4}-\\d{2}-\\d{2}$" },
+        "time": { "type": ["string", "null"], "pattern": "^\\d{2}:\\d{2}$" },
+        "matched_text": { "type": "string" },
+        "label": {
+          "enum": [
+            "submission",
+            "presentation",
+            "late_submission",
+            "feedback",
+            "release",
+            "exam",
+            "other"
+          ]
+        },
+        "notes": { "type": "array", "items": { "type": "string" } }
+      }
+    },
+    "nullableField": { "oneOf": [{ "type": "null" }, { "$ref": "#/$defs/field" }] },
+    "fieldList": { "type": "array", "maxItems": 20, "items": { "$ref": "#/$defs/field" } },
+    "dateList": { "type": "array", "items": { "$ref": "#/$defs/dateField" } }
+  },
+  "required": [
+    "schema_version",
+    "title",
+    "module_name",
+    "module_code",
+    "weighting",
+    "submission_deadline",
+    "submission_time",
+    "deadline_candidates",
+    "presentation_dates",
+    "other_dates",
+    "word_count",
+    "deliverables",
+    "marking_criteria",
+    "instructions",
+    "needs_confirmation",
+    "warnings"
+  ],
+  "properties": {
+    "schema_version": { "const": 1 },
+    "title": { "$ref": "#/$defs/nullableField" },
+    "module_name": { "$ref": "#/$defs/nullableField" },
+    "module_code": { "$ref": "#/$defs/nullableField" },
+    "weighting": { "$ref": "#/$defs/nullableField" },
+    "submission_deadline": {
+      "oneOf": [{ "type": "null" }, { "$ref": "#/$defs/dateField" }]
+    },
+    "submission_time": { "$ref": "#/$defs/nullableField" },
+    "deadline_candidates": { "$ref": "#/$defs/dateList" },
+    "presentation_dates": { "$ref": "#/$defs/dateList" },
+    "other_dates": { "$ref": "#/$defs/dateList" },
+    "word_count": { "$ref": "#/$defs/nullableField" },
+    "deliverables": { "$ref": "#/$defs/fieldList" },
+    "marking_criteria": { "$ref": "#/$defs/fieldList" },
+    "instructions": { "$ref": "#/$defs/fieldList" },
+    "needs_confirmation": { "type": "boolean" },
+    "warnings": { "type": "array", "items": { "type": "string" } }
+  }
+}

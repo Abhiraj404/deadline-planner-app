@@ -1,0 +1,17 @@
+{
+  "name": "deadline-planner-tools",
+  "private": true,
+  "type": "module",
+  "engines": {"node": ">=24"},
+  "scripts": {
+    "lint": "eslint planner.js static",
+    "format": "prettier --write index.html planner.js static",
+    "format:check": "prettier --check index.html planner.js static"
+  },
+  "devDependencies": {
+    "@eslint/js": "^10.0.0",
+    "eslint": "^10.0.0",
+    "globals": "^16.0.0",
+    "prettier": "^3.0.0"
+  }
+}

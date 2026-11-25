@@ -1,0 +1,66 @@
+# ---------------------------------------------------------------------------
+# Private runtime data. None of this may ever be committed or published.
+# ---------------------------------------------------------------------------
+
+# Personal data folder (database, .env, sessions, documents, backups, logs)
+data/
+migration-backup-*/
+
+# Configuration and secrets
+.env
+.env.*
+!.env.example
+credentials.json
+client_secret*.json
+*-token.json
+*-cache.json
+*-session.json
+moodle-session.json
+gmail-token.json
+outlook-cache.json
+
+# SQLite databases, journals and backups
+*.db
+*.db-*
+*.sqlite
+*.sqlite3
+*.bak
+planner_backups/
+
+# Downloaded or uploaded documents and their indexes
+assessment_pdfs/
+assessment_index.json
+*.pdf
+*.docx
+*.doc
+*.docm
+
+# Logs and process state
+planner_logs/
+*.log
+.planner-operation.lock
+.planner-server.json
+.planner-server.lock
+
+# Synthetic demo data is generated on demand by demo_data.py
+demo-data/
+
+# Generated release artefacts
+dist/
+*.zip
+
+# Environments, caches and tooling
+.venv/
+venv/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.ruff_cache/
+.planner-dev/
+node_modules/
+.coverage
+htmlcov/
+.idea/
+.vscode/
+Thumbs.db
+.DS_Store

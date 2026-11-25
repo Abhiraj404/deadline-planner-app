@@ -1,0 +1,130 @@
+{
+  "description": "Synthetic, language-neutral test cases for assessment extraction. Shared by the Python tests and the future JavaScript port.",
+  "cases": [
+    {
+      "name": "labelled brief with distractor dates",
+      "text": "Module: COMP3010 Software Engineering\nAssessment Title: CA2 Group Project Report\nWeighting: 40%\nIssue date: 6 October 2026\nSubmission deadline: Friday 11 December 2026 at 17:00\nPresentations will take place on 15/12/2026.\nLate submissions are accepted until 18 December 2026 with a penalty.\nFeedback will be returned by 22 January 2027.\nWord count: 2,000 - 2,500 words\n\nDeliverables:\n- Project report (PDF)\n- Source code repository link\n\nMarking criteria:\n1. Requirements analysis 20%\n2. Design 30%\nImportant: Submit through Moodle only.",
+      "expected": {
+        "title.value": "CA2 Group Project Report",
+        "module_name.value": "Software Engineering",
+        "module_code.value": "COMP3010",
+        "weighting.value": "40%",
+        "submission_deadline.value": "2026-12-11",
+        "submission_deadline.confidence": "high",
+        "submission_time.value": "17:00",
+        "presentation_dates.0.value": "2026-12-15",
+        "other_dates.length": 3,
+        "word_count.minimum": 2000,
+        "word_count.maximum": 2500,
+        "deliverables.length": 2,
+        "marking_criteria.1.value": "Design 30%",
+        "instructions.0.value": "Submit through Moodle only.",
+        "needs_confirmation": false
+      }
+    },
+    {
+      "name": "ambiguous numeric day-first date",
+      "text": "This assignment is worth 25% of the module grade.\nDue: 03/04/2027 by 5pm",
+      "expected": {
+        "weighting.value": "25%",
+        "submission_deadline.value": "2027-04-03",
+        "submission_deadline.confidence": "medium",
+        "submission_time.value": "17:00",
+        "needs_confirmation": true
+      }
+    },
+    {
+      "name": "missing year is never guessed",
+      "text": "Submit by 14 March",
+      "expected": {
+        "submission_deadline.value": null,
+        "submission_deadline.confidence": "low",
+        "needs_confirmation": true,
+        "warnings.length": 1
+      }
+    },
+    {
+      "name": "conflicting deadlines require a choice",
+      "text": "Weighting of 30%.\nDue date 2027-02-01 23:59\nDeadline 5 Feb 2027",
+      "expected": {
+        "weighting.value": "30%",
+        "submission_deadline": null,
+        "deadline_candidates.length": 2,
+        "needs_confirmation": true
+      }
+    },
+    {
+      "name": "ordinal date with noon",
+      "text": "Hand-in: Thursday 21st January 2027, 12 noon",
+      "expected": {
+        "submission_deadline.value": "2027-01-21",
+        "submission_time.value": "12:00",
+        "needs_confirmation": false
+      }
+    },
+    {
+      "name": "table layout with dotted dates and two-digit year",
+      "text": "Release date\t01.10.2026\nSubmission date\t20.11.26",
+      "expected": {
+        "submission_deadline.value": "2026-11-20",
+        "submission_deadline.confidence": "medium",
+        "other_dates.0.label": "release",
+        "needs_confirmation": true
+      }
+    },
+    {
+      "name": "label on the previous line",
+      "text": "Submission Deadline\n11 December 2026 at 23:59",
+      "expected": {
+        "submission_deadline.value": "2026-12-11",
+        "submission_time.value": "23:59"
+      }
+    },
+    {
+      "name": "weekday mismatch lowers confidence",
+      "text": "Deadline: Monday 11 December 2026",
+      "expected": {
+        "submission_deadline.value": "2026-12-11",
+        "submission_deadline.confidence": "low",
+        "needs_confirmation": true
+      }
+    },
+    {
+      "name": "due to is not a deadline",
+      "text": "The brief is due to be discussed on 3 March 2027.",
+      "expected": {
+        "submission_deadline": null,
+        "other_dates.0.label": "other"
+      }
+    },
+    {
+      "name": "presentation only",
+      "text": "Presentation: 15 December 2026, 10.00am",
+      "expected": {
+        "submission_deadline": null,
+        "presentation_dates.0.value": "2026-12-15",
+        "presentation_dates.0.time": "10:00"
+      }
+    },
+    {
+      "name": "invalid calendar date is ignored",
+      "text": "Deadline: 31/02/2027",
+      "expected": {
+        "submission_deadline": null,
+        "deadline_candidates.length": 0
+      }
+    },
+    {
+      "name": "no information",
+      "text": "Read chapter four before the next lecture.",
+      "expected": {
+        "title": null,
+        "module_name": null,
+        "weighting": null,
+        "word_count": null,
+        "submission_deadline": null,
+        "needs_confirmation": true
+      }
+    }
+  ]
+}

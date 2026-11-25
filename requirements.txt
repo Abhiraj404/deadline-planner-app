@@ -1,0 +1,13 @@
+# Compatible ranges. setup.ps1 installs the tested pins in requirements-lock.txt first.
+fastapi>=0.110
+uvicorn>=0.29
+requests>=2.31
+icalendar>=5.0
+beautifulsoup4>=4.12
+playwright>=1.40
+google-api-python-client>=2.100
+google-auth-oauthlib>=1.0
+msal>=1.24
+python-dotenv>=1.0
+dateparser>=1.1
+pypdf>=4.0

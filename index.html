@@ -1,0 +1,429 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Deadline Planner</title>
+    <link rel="stylesheet" href="/static/planner.css" />
+    <script type="module" src="/planner.js"></script>
+  </head>
+  <body>
+    <main>
+      <div class="row between">
+        <h1>Deadline Planner</h1>
+        <div class="row">
+          <button id="sync" disabled>Sync now</button
+          ><button id="stop" class="secondary" disabled>Stop sync</button>
+        </div>
+      </div>
+      <p id="app-banner" class="banner" role="note" hidden></p>
+      <nav class="row" aria-label="Planner">
+        <a href="/">Overview</a><a href="/assignments">Assignments</a><a href="/modules">Modules</a>
+        <a href="/library">Assessment Document Library</a><a href="/calendar">Calendar</a>
+        <a href="/history">Synchronisation History</a><a href="/settings">Settings</a
+        ><a href="/setup">Setup</a>
+      </nav>
+      <p id="status" role="status">Checking synchronisation…</p>
+      <p id="metrics" class="metrics" aria-live="polite"></p>
+      <div id="notice" role="status"></div>
+
+      <div data-page="/" hidden>
+        <div class="stats" id="stats"></div>
+        <section id="reminder-section" hidden>
+          <div class="row between">
+            <h2>Reminders</h2>
+            <button type="button" class="secondary" id="enable-notifications" hidden>
+              Enable browser notifications
+            </button>
+          </div>
+          <div id="reminders"></div>
+        </section>
+        <section>
+          <div class="row between">
+            <h2>Upcoming deadlines</h2>
+            <a href="/assignments">All assignments</a>
+          </div>
+          <div id="upcoming"></div>
+        </section>
+        <section>
+          <div class="row between">
+            <h2>Recent assessment documents</h2>
+            <a href="/library">Document library</a>
+          </div>
+          <div id="recent"></div>
+        </section>
+      </div>
+
+      <div data-page="/assignments" hidden>
+        <section>
+          <h2 id="formtitle">Add deadline</h2>
+          <form id="form">
+            <label class="wide">Task<input name="title" required /></label>
+            <label>Due date<input name="due" type="date" required /></label>
+            <label
+              >Priority<select name="priority">
+                <option>Medium</option>
+                <option>High</option>
+                <option>Low</option>
+              </select></label
+            >
+            <label>Module / category<input name="category" /></label>
+            <label
+              >Progress (%)<input name="progress" type="number" min="0" max="100" value="0"
+            /></label>
+            <label class="wide">Notes<textarea name="notes"></textarea></label>
+            <button>Save deadline</button
+            ><button type="button" class="secondary" id="cancel">Clear</button>
+          </form>
+        </section>
+        <h2>Assignments</h2>
+        <div class="row">
+          <label>Search<input id="task-search" type="search" /></label>
+          <label
+            >Status<select id="filter">
+              <option>All</option>
+              <option>Upcoming</option>
+              <option>Overdue</option>
+              <option>Completed</option>
+              <option>Needs review</option>
+              <option>Undated</option>
+            </select></label
+          >
+          <label
+            >Source<select id="source">
+              <option value="">All sources</option>
+              <option>Moodle</option>
+              <option>Outlook</option>
+              <option>Gmail</option>
+              <option>Manual</option>
+            </select></label
+          >
+          <label>Module<select id="module"></select></label>
+          <label>From<input type="date" id="task-start" /></label
+          ><label>To<input type="date" id="task-end" /></label>
+          <label
+            >Sort<select id="task-sort">
+              <option value="due">Earliest deadline</option>
+              <option value="latest">Latest deadline</option>
+              <option value="title">Title</option>
+            </select></label
+          >
+        </div>
+        <div id="list"></div>
+        <div id="task-pager"></div>
+      </div>
+
+      <div data-page="/modules" hidden>
+        <h2>Modules</h2>
+        <label>Search modules<input id="module-search" type="search" /></label>
+        <div id="module-list"></div>
+        <div id="module-pager"></div>
+      </div>
+
+      <div data-page="/library" hidden>
+        <h2>Assessment Document Library</h2>
+        <section>
+          <h3>Import a document</h3>
+          <p>
+            Add a PDF or Word (.docx) assessment brief from your computer. No account is needed. The
+            file stays on this computer.
+          </p>
+          <form id="upload-form" class="row">
+            <label
+              >File<input
+                id="upload-file"
+                type="file"
+                accept=".pdf,.docx,application/pdf,application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+                required
+            /></label>
+            <label>Module (optional)<input id="upload-module" maxlength="200" /></label>
+            <button>Import document</button>
+          </form>
+        </section>
+        <section id="review" hidden>
+          <h3>Review extracted assessment details</h3>
+          <p>
+            Nothing is saved until you confirm. Check each value against the source text. Empty
+            fields were not found in the document.
+          </p>
+          <ul id="review-warnings" class="warn"></ul>
+          <form id="review-form">
+            <label class="wide"
+              >Assignment title<input name="title" required maxlength="1000"
+            /></label>
+            <label>Submission deadline<input name="due" type="date" required /></label>
+            <label>Deadline candidates<select id="review-candidates"></select></label>
+            <label>Module / category<input name="category" maxlength="1000" /></label>
+            <label
+              >Priority<select name="priority">
+                <option>Medium</option>
+                <option>High</option>
+                <option>Low</option>
+              </select></label
+            >
+            <label>Weighting<input name="weighting" maxlength="20" /></label>
+            <label class="wide">Notes<textarea name="notes" rows="8"></textarea></label>
+            <div class="wide" id="review-sources"></div>
+            <div class="row wide">
+              <button>Confirm and add deadline</button
+              ><button type="button" class="secondary" id="review-cancel">Discard</button>
+            </div>
+          </form>
+        </section>
+        <div class="row">
+          <label>Search document title or text<input id="docsearch" type="search" /></label>
+          <label>Module<select id="docmodule"></select></label>
+          <label>From<input type="date" id="doc-start" /></label
+          ><label>To<input type="date" id="doc-end" /></label>
+          <label
+            >Date availability<select id="doc-dated">
+              <option value="all">All documents</option>
+              <option value="dated">Dated only</option>
+              <option value="undated">Undated only</option>
+            </select></label
+          >
+          <label
+            >Sort<select id="doc-sort">
+              <option value="group">Module and assessment</option>
+              <option value="recent">Most recent first</option>
+              <option value="title">Title</option>
+            </select></label
+          >
+        </div>
+        <div id="docs"></div>
+        <div id="doc-pager"></div>
+      </div>
+
+      <div data-page="/calendar" hidden>
+        <div class="row between">
+          <h2>Calendar</h2>
+          <label>Module<select id="calendar-module"></select></label>
+          <label
+            >Source<select id="calendar-source">
+              <option value="">All sources</option>
+              <option>Moodle</option>
+              <option>Outlook</option>
+              <option>Gmail</option>
+              <option>Manual</option>
+            </select></label
+          >
+        </div>
+        <div id="month"></div>
+      </div>
+
+      <div data-page="/history" hidden>
+        <h2>Synchronisation History</h2>
+        <div id="history"></div>
+        <div id="history-pager"></div>
+      </div>
+
+      <div data-page="/setup" hidden>
+        <section>
+          <h2>Welcome to Deadline Planner</h2>
+          <p>
+            Everything runs on this computer. Every integration below is optional: you can add
+            deadlines by hand or import PDF and Word briefs without connecting any account.
+          </p>
+          <p id="setup-demo" class="warn" hidden>
+            Demo mode uses synthetic data, so integrations cannot be changed here.
+          </p>
+        </section>
+        <form id="setup-form" class="stack">
+          <section>
+            <h3>Moodle (optional)</h3>
+            <label
+              >Moodle URL<input
+                name="moodle_url"
+                type="url"
+                placeholder="https://moodle.example.edu/my/"
+                autocomplete="off"
+            /></label>
+            <label
+              >Calendar export URL<input
+                name="moodle_ics_url"
+                type="password"
+                placeholder="Leave blank to keep the saved value"
+                autocomplete="off"
+            /></label>
+            <label class="inline"
+              ><input type="checkbox" name="clear_ics" /> Remove the saved calendar URL</label
+            >
+            <p id="moodle-status"></p>
+            <p>
+              To save a Moodle sign-in session, run
+              <code>.\.venv\Scripts\python.exe auth.py moodle</code> in PowerShell, sign in, then
+              press Enter. Keep the calendar URL private: it can grant access to your calendar.
+            </p>
+          </section>
+          <section>
+            <h3>Outlook (optional)</h3>
+            <label
+              >Application (client) ID<input
+                name="outlook_client_id"
+                placeholder="00000000-0000-0000-0000-000000000000"
+                autocomplete="off"
+            /></label>
+            <label>Tenant<input name="outlook_tenant" placeholder="common" /></label>
+            <p id="outlook-status"></p>
+            <p>Then run <code>.\.venv\Scripts\python.exe auth.py outlook</code>.</p>
+          </section>
+          <section>
+            <h3>Gmail (optional)</h3>
+            <p id="gmail-status"></p>
+            <p>
+              Save your Google OAuth desktop client file as <code>credentials.json</code> in the
+              <code>data</code> folder, then run
+              <code>.\.venv\Scripts\python.exe auth.py gmail</code>.
+            </p>
+          </section>
+          <section>
+            <h3>Preferences</h3>
+            <label
+              >Default timezone<input name="timezone" list="timezones" placeholder="Europe/Dublin"
+            /></label>
+            <datalist id="timezones">
+              <option>Europe/Dublin</option>
+              <option>Europe/London</option>
+              <option>Europe/Paris</option>
+              <option>Europe/Berlin</option>
+              <option>UTC</option>
+            </datalist>
+            <label
+              >Default synchronisation range<select name="preset">
+                <option value="all">All available dates</option>
+                <option value="7">Last 7 days</option>
+                <option value="30">Last 30 days</option>
+                <option value="90">Last 90 days</option>
+              </select></label
+            >
+            <label class="inline"
+              ><input type="checkbox" name="reminders_enabled" /> Show deadline reminders</label
+            >
+            <label
+              >Remind me this many days before (comma separated)<input
+                name="reminder_days"
+                placeholder="7, 1"
+            /></label>
+            <label class="inline"
+              ><input type="checkbox" name="include_overdue" /> Include overdue deadlines</label
+            >
+            <label class="inline"
+              ><input type="checkbox" name="browser_notifications" /> Browser notifications while
+              the planner is open</label
+            >
+          </section>
+          <div class="row">
+            <button>Save and finish setup</button>
+          </div>
+        </form>
+      </div>
+
+      <div data-page="/settings" hidden>
+        <section>
+          <h2>Download and synchronisation settings</h2>
+          <form id="sync-settings">
+            <label class="inline"
+              ><input type="checkbox" name="automatic" /> Enable automatic sync</label
+            >
+            <label
+              >Frequency in minutes<input name="minutes" type="number" min="1" max="1440" required
+            /></label>
+            <label
+              >Date range<select name="preset">
+                <option value="all">All available dates</option>
+                <option value="7">Last 7 days</option>
+                <option value="30">Last 30 days</option>
+                <option value="90">Last 90 days</option>
+                <option value="semester">Current semester</option>
+                <option value="custom">Custom date range</option>
+              </select></label
+            >
+            <label class="inline"
+              ><input type="checkbox" name="include_undated" /> Include assignments and documents
+              without reliable dates</label
+            >
+            <label>Start date<input name="start" type="date" /></label
+            ><label>End date<input name="end" type="date" /></label>
+            <label>Semester start<input name="semester_start" type="date" /></label
+            ><label>Semester end<input name="semester_end" type="date" /></label>
+            <fieldset class="wide">
+              <legend>Sources</legend>
+              <label class="inline"
+                ><input type="checkbox" name="sources" value="Moodle" /> Moodle</label
+              >
+              <label class="inline"
+                ><input type="checkbox" name="sources" value="Outlook" /> Outlook</label
+              >
+              <label class="inline"
+                ><input type="checkbox" name="sources" value="Gmail" /> Gmail</label
+              >
+            </fieldset>
+            <label class="wide"
+              >Modules to scrape
+              <select name="modules" multiple aria-describedby="module-help"></select
+            ></label>
+            <small class="wide" id="module-help"
+              >Leave the list unselected to include all enrolled modules. Run a preview to discover
+              modules.</small
+            >
+            <button>Save settings</button
+            ><button type="button" class="secondary" id="preview-start" disabled>
+              Preview available imports
+            </button>
+          </form>
+        </section>
+        <section>
+          <h2>Available imports</h2>
+          <p id="preview-summary">Run a preview with your selected settings.</p>
+          <details id="preview-deadlines" hidden>
+            <summary>Matching deadlines</summary>
+            <div id="preview-task-list"></div>
+            <div id="preview-task-pager"></div>
+          </details>
+          <div id="preview-list"></div>
+          <div id="preview-doc-pager" hidden></div>
+          <div class="row">
+            <button id="download-selected" disabled>Download selected documents</button>
+            <button id="download-all" class="secondary" disabled>
+              Download all matching documents
+            </button>
+          </div>
+        </section>
+        <section>
+          <h2>Data management</h2>
+          <p>Review the counts before confirming. Each operation creates a local backup.</p>
+          <label
+            >Action<select id="data-action" aria-label="Data management action">
+              <option value="moodle">Clear imported Moodle deadlines</option>
+              <option value="pdfs">Clear downloaded assessment documents</option>
+              <option value="outlook">Clear Outlook imports</option>
+              <option value="gmail">Clear Gmail imports</option>
+              <option value="duplicates">Remove duplicate records</option>
+              <option value="completed">Clear completed imported assignments</option>
+              <option value="imported">Reset all imported data</option>
+              <option value="full">Full application reset</option>
+            </select></label
+          >
+          <label class="inline" id="manual-option" hidden
+            ><input type="checkbox" id="include-manual" /> Also delete my manually entered
+            deadlines</label
+          >
+          <button class="secondary" id="data-preview">Review affected records</button>
+        </section>
+      </div>
+
+      <dialog id="confirmation">
+        <h2 id="confirmation-title">Confirm data change</h2>
+        <p id="manual-warning" class="warn" hidden>
+          This also deletes the listed manually entered deadlines.
+        </p>
+        <ul id="affected"></ul>
+        <p>A database backup will be saved before the operation.</p>
+        <div class="row">
+          <button id="confirm-data">Confirm</button
+          ><button type="button" class="secondary" id="cancel-data">Cancel</button>
+        </div>
+      </dialog>
+    </main>
+  </body>
+</html>

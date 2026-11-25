@@ -1,0 +1,21 @@
+[tool.ruff]
+target-version = "py311"
+line-length = 100
+extend-exclude = ["data", "demo-data", "node_modules"]
+
+[tool.ruff.lint]
+select = ["E4", "E7", "E9", "F", "I", "UP"]
+
+[tool.ruff.lint.per-file-ignores]
+# Scripts add the project folder to sys.path before importing the application.
+"scripts/*.py" = ["E402"]
+
+[tool.ruff.format]
+quote-style = "single"
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+# Tests import the application modules from the project folder.
+pythonpath = ["."]
+python_files = ["test_*.py"]
+norecursedirs = ["fixtures"]
